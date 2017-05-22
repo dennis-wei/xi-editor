@@ -23,6 +23,7 @@ use syntax::SyntaxDefinition;
 static PLUGIN_DIR: &'static str = "XI_PLUGIN_DIR";
 
 // example plugins. Eventually these should be loaded from disk.
+#[cfg(not(target_os = "fuchsia"))]
 pub fn debug_plugins() -> Vec<PluginDescription> {
     use self::PluginActivation::*;
     let plugin_dir = match env::var(PLUGIN_DIR).map(PathBuf::from) {
@@ -57,6 +58,11 @@ pub fn debug_plugins() -> Vec<PluginDescription> {
         })
         .map(|desc| desc.to_owned())
         .collect::<Vec<_>>()
+}
+
+#[cfg(target_os = "fuchsia")]
+pub fn debug_plugins() -> Vec<PluginDescription> {
+    Vec::new()
 }
 
 /// Describes attributes and capabilities of a plugin.
