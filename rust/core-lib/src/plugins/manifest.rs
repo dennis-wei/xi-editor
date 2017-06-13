@@ -14,17 +14,18 @@
 
 //! Structured representation of a plugin's features and capabilities.
 
-use std::env;
 use std::path::PathBuf;
 
 use syntax::SyntaxDefinition;
 
 // optional environment variable for debug plugin executables
+#[cfg(not(target_os = "fuchsia"))]
 static PLUGIN_DIR: &'static str = "XI_PLUGIN_DIR";
 
 // example plugins. Eventually these should be loaded from disk.
 #[cfg(not(target_os = "fuchsia"))]
 pub fn debug_plugins() -> Vec<PluginDescription> {
+    use std::env;
     use self::PluginActivation::*;
     let plugin_dir = match env::var(PLUGIN_DIR).map(PathBuf::from) {
         Ok(p) => p,
@@ -48,7 +49,7 @@ pub fn debug_plugins() -> Vec<PluginDescription> {
         PluginDescription::new("shouty", "0.0", make_path("shouty.py"),
         Vec::new()),
     ].iter()
-        .filter(|desc|{ 
+        .filter(|desc|{
             if !desc.exec_path.exists() {
                 print_err!("missing plugin {} at {:?}", desc.name, desc.exec_path);
                 false
@@ -93,6 +94,7 @@ pub enum PluginActivation {
     OnCommand,
 }
 
+#[cfg(not(target_os = "fuchsia"))]
 impl PluginDescription {
     fn new<S, P>(name: S, version: S, exec_path: P,
                  activations: Vec<PluginActivation>) -> Self
